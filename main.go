@@ -60,10 +60,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// Set basic authentication
+	// SET BASIC AUTH
 	req.SetBasicAuth(config.ServiceNowUser, config.ServiceNowPwd)
 
-	// Make HTTP Request
+	// MAKE HTTP REQUEST
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Fatal(err)
@@ -77,10 +77,13 @@ func main() {
 		log.Fatalf("ERROR - %s", err)
 	}
 
+	notInPCE := 0
+	counter := 0
 	for _, line := range data {
 
 		// CHECK IF WORKLOAD EXISTS
 		for _, wl := range accountWorkloads {
+			counter++
 			updateRequired := false
 			wlLabels := make(map[string]string)
 			if line[0] == wl.Hostname {
@@ -137,9 +140,11 @@ func main() {
 				} else {
 					log.Printf("INFO - %s - No label updates required", wl.Hostname)
 				}
+			} else {
+				notInPCE++
 			}
 
 		}
-
 	}
+	log.Printf("INFO - Processed %d servers; %d not in PCE as workloads", counter-1, notInPCE-1)
 }
