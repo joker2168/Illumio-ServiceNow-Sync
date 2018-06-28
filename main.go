@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/tls"
 	"encoding/csv"
+	"fmt"
 	"log"
 	"net/http"
 	"net/url"
@@ -108,7 +109,9 @@ func main() {
 					if wlLabels[labelKeys[i]] != line[i+1] {
 						log.Printf("INFO - %s - %s label updated from %s to %s", wl.Hostname, labelKeys[i], wlLabels[labelKeys[i]], line[i+1])
 						updateRequired = true
-						updateLabelsArray = append(updateLabelsArray, illumioapi.Label{Key: labelKeys[i], Value: line[i+1]})
+						if line[i+1] != "" {
+							updateLabelsArray = append(updateLabelsArray, illumioapi.Label{Key: labelKeys[i], Value: line[i+1]})
+						}
 					} else {
 						updateLabelsArray = append(updateLabelsArray, illumioapi.Label{Key: labelKeys[i], Value: wlLabels[labelKeys[i]]})
 					}
@@ -125,6 +128,7 @@ func main() {
 						}
 						// IF LABEL DOESN'T EXIST, CREATE IT
 						if len(labelCheck) == 0 && config.LoggingOnly == false {
+							fmt.Printf("trying to create label %v", ul)
 							_, err := illumioapi.CreateLabel(config.IllumioFQDN, config.IllumioPort, config.IllumioOrg, config.IllumioUser, config.IllumioKey, ul)
 							if err != nil {
 								log.Printf("ERROR - %s - %s", wl.Hostname, err)
