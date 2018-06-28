@@ -60,7 +60,7 @@ func main() {
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 	client := &http.Client{Transport: tr}
-	snURL := config.ServiceNowURL + "?CSV&sysparm_fields=" + url.QueryEscape(config.HostNameField) + "," + url.QueryEscape(config.AppField) + "," + url.QueryEscape(config.EnvField) + "," + url.QueryEscape(config.LocField) + "," + url.QueryEscape(config.RoleField)
+	snURL := config.ServiceNowURL + "?CSV&sysparm_fields=" + url.QueryEscape(config.ServiceNowMatchField) + "," + url.QueryEscape(config.AppField) + "," + url.QueryEscape(config.EnvField) + "," + url.QueryEscape(config.LocField) + "," + url.QueryEscape(config.RoleField)
 	req, err := http.NewRequest("GET", snURL, nil)
 	if err != nil {
 		log.Fatal(err)
@@ -92,7 +92,11 @@ func main() {
 			counter++
 			updateRequired := false
 			wlLabels := make(map[string]string)
-			if line[0] == wl.Hostname {
+			illumioMatch := wl.Hostname
+			if config.IllumioMatchField == "name" {
+				illumioMatch = wl.Name
+			}
+			if line[0] == illumioMatch {
 				for _, l := range wl.Labels {
 					wlLabels[accountLabelKeys[l.Href]] = accountLabelValues[l.Href]
 				}

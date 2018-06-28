@@ -8,20 +8,21 @@ import (
 )
 
 type config struct {
-	ServiceNowURL  string `json:"serviceNowURL"`
-	ServiceNowUser string `json:"serviceNowUser"`
-	ServiceNowPwd  string `json:"serviceNowPwd"`
-	IllumioFQDN    string `json:"illumioFQDN"`
-	IllumioPort    int    `json:"illumioPort"`
-	IllumioOrg     int    `json:"illumioOrg"`
-	IllumioUser    string `json:"illumioUser"`
-	IllumioKey     string `json:"illumioKey"`
-	HostNameField  string `json:"hostNameField"`
-	AppField       string `json:"appField"`
-	EnvField       string `json:"envField"`
-	LocField       string `json:"locField"`
-	RoleField      string `json:"roleField"`
-	LoggingOnly    bool   `json:"loggingOnly"`
+	IllumioFQDN          string `json:"illumioFQDN"`
+	IllumioPort          int    `json:"illumioPort"`
+	IllumioOrg           int    `json:"illumioOrg"`
+	IllumioUser          string `json:"illumioUser"`
+	IllumioKey           string `json:"illumioKey"`
+	IllumioMatchField    string `json:"illumioMatchField"`
+	ServiceNowURL        string `json:"serviceNowURL"`
+	ServiceNowUser       string `json:"serviceNowUser"`
+	ServiceNowPwd        string `json:"serviceNowPwd"`
+	ServiceNowMatchField string `json:"serviceNowMatchField"`
+	AppField             string `json:"appField"`
+	EnvField             string `json:"envField"`
+	LocField             string `json:"locField"`
+	RoleField            string `json:"roleField"`
+	LoggingOnly          bool   `json:"loggingOnly"`
 }
 
 var configFile string
