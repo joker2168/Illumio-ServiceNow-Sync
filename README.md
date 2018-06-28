@@ -1,7 +1,7 @@
 # Illumio ServiceNow Sync App
 
 ## Description
-A command line utility that imports labels into the Illumio PCE from a CSV file.
+A command line utility that syncs ServiceNow CMDB with Illumio. For a routine sync, set to run on a cron job (.e.g, daily).
 
 ## Third-party Packages
 Uses a Go package that provides the plumbing for accessing the Illumio APIs. The location of the package is here: https://stash.ilabs.io/users/brian.pitta/repos/illumioapi/. You can add this to your environment by running `go get stash.ilabs.io/scm/~brian.pitta/illumioapi.git`
