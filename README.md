@@ -34,6 +34,7 @@ A sample config file (`sampleConfig.json`) is included in the repository. An ann
 * `illumioMatchField` must either be `name` or `host_name`. This is what is used to match to the `serviceNowMatchField`
 * `appField`, `envField`, `locField`, and `roleField` are the ServiceNow fields that map to their respective Illumio labels. To have the sync tool ignore a field set it to `""`.
 * Set `loggingOnly` to `true` if you want to run this tool to see what changes *would* happen - no updates will happen in the PCE.
+* To avoid duplicates, the sync tool will make all labels capitalized.
 
 ## Logging
 Each run will create a log file. The file naming convention is `"IllumioServiceNowSync__YYYYMMDD_HHMMSS.log` with the time stamp based on the start of execution. Logging captures each entry and the API response status. An example output of the logging is below.
