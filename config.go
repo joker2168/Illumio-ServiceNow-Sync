@@ -23,6 +23,7 @@ type config struct {
 	LocField             string `json:"locField"`
 	RoleField            string `json:"roleField"`
 	LoggingOnly          bool   `json:"loggingOnly"`
+	LogDirectory         string `json:"logDirectory"`
 }
 
 var configFile string

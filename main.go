@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"strings"
 	"time"
 
 	"stash.ilabs.io/scm/~brian.pitta/illumioapi.git"
@@ -19,7 +18,10 @@ func main() {
 	config := parseConfig()
 
 	// SET UP LOGGING FILE
-	f, err := os.OpenFile("Illumio_ServiceNow_Sync_"+time.Now().Format("20060102_150405")+".log", os.O_CREATE|os.O_WRONLY, 0644)
+	if len(config.LogDirectory) > 0 && config.LogDirectory[len(config.LogDirectory)-1:] != string(os.PathSeparator) {
+		config.LogDirectory = config.LogDirectory + string(os.PathSeparator)
+	}
+	f, err := os.OpenFile(config.LogDirectory+"Illumio_ServiceNow_Sync_"+time.Now().Format("20060102_150405")+".log", os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -108,11 +110,11 @@ func main() {
 				for i := 0; i <= 3; i++ {
 					if configFields[i] != "csvPlaceHolderIllumio" {
 						// CHECK IF THE WORKLOAD LABEL MATCHES THE CSV FIELD
-						if wlLabels[labelKeys[i]] != strings.ToUpper(line[i+1]) {
-							log.Printf("INFO - %s - %s label updated from %s to %s", wl.Hostname, labelKeys[i], wlLabels[labelKeys[i]], strings.ToUpper(line[i+1]))
+						if wlLabels[labelKeys[i]] != line[i+1] {
+							log.Printf("INFO - %s - %s label updated from %s to %s", wl.Hostname, labelKeys[i], wlLabels[labelKeys[i]], line[i+1])
 							updateRequired = true
 							if line[i+1] != "" {
-								updateLabelsArray = append(updateLabelsArray, illumioapi.Label{Key: labelKeys[i], Value: strings.ToUpper(line[i+1])})
+								updateLabelsArray = append(updateLabelsArray, illumioapi.Label{Key: labelKeys[i], Value: line[i+1]})
 							}
 						} else {
 							updateLabelsArray = append(updateLabelsArray, illumioapi.Label{Key: labelKeys[i], Value: wlLabels[labelKeys[i]]})
