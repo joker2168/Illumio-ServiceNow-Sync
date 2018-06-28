@@ -3,7 +3,6 @@ package main
 import (
 	"crypto/tls"
 	"encoding/csv"
-	"fmt"
 	"log"
 	"net/http"
 	"net/url"
@@ -106,7 +105,6 @@ func main() {
 				configFields := []string{config.AppField, config.EnvField, config.LocField, config.RoleField}
 				updateLabelsArray := []illumioapi.Label{}
 				for i := 0; i <= 3; i++ {
-					fmt.Println(configFields[i])
 					if configFields[i] != "csvPlaceHolderIllumio" {
 						// CHECK IF THE WORKLOAD LABEL MATCHES THE CSV FIELD
 						if wlLabels[labelKeys[i]] != line[i+1] {
@@ -134,7 +132,6 @@ func main() {
 						}
 						// IF LABEL DOESN'T EXIST, CREATE IT
 						if len(labelCheck) == 0 && config.LoggingOnly == false {
-							fmt.Printf("trying to create label %v", ul)
 							_, err := illumioapi.CreateLabel(config.IllumioFQDN, config.IllumioPort, config.IllumioOrg, config.IllumioUser, config.IllumioKey, ul)
 							if err != nil {
 								log.Printf("ERROR - %s - %s", wl.Hostname, err)
