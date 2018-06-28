@@ -37,7 +37,7 @@ A sample config file (`sampleConfig.json`) is included in the repository. An ann
 * To avoid duplicates, the sync tool will make all labels capitalized.
 
 ## Logging
-Each run will create a log file. The file naming convention is `"IllumioServiceNowSync__YYYYMMDD_HHMMSS.log` with the time stamp based on the start of execution. Logging captures each entry and the API response status. An example output of the logging is below.
+Each run will create a log file. The file naming convention is `IllumioServiceNowSync__YYYYMMDD_HHMMSS.log` with the time stamp based on the start of execution. Logging captures each entry and the API response status. An example output of the logging is below.
 
 ```
 2018/06/28 09:52:13 INFO - Log only mode set to false
