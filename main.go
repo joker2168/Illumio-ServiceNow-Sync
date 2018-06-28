@@ -103,14 +103,20 @@ func main() {
 				}
 				// CHECK EACH LABEL TYPE TO SEE IF IT NEEDS TO BE UPDATED
 				labelKeys := []string{"app", "env", "loc", "role"}
+				configFields := []string{config.AppField, config.EnvField, config.LocField, config.RoleField}
 				updateLabelsArray := []illumioapi.Label{}
 				for i := 0; i <= 3; i++ {
-					// CHECK IF THE WORKLOAD LABEL MATCHES THE CSV FIELD
-					if wlLabels[labelKeys[i]] != line[i+1] {
-						log.Printf("INFO - %s - %s label updated from %s to %s", wl.Hostname, labelKeys[i], wlLabels[labelKeys[i]], line[i+1])
-						updateRequired = true
-						if line[i+1] != "" {
-							updateLabelsArray = append(updateLabelsArray, illumioapi.Label{Key: labelKeys[i], Value: line[i+1]})
+					fmt.Println(configFields[i])
+					if configFields[i] != "csvPlaceHolderIllumio" {
+						// CHECK IF THE WORKLOAD LABEL MATCHES THE CSV FIELD
+						if wlLabels[labelKeys[i]] != line[i+1] {
+							log.Printf("INFO - %s - %s label updated from %s to %s", wl.Hostname, labelKeys[i], wlLabels[labelKeys[i]], line[i+1])
+							updateRequired = true
+							if line[i+1] != "" {
+								updateLabelsArray = append(updateLabelsArray, illumioapi.Label{Key: labelKeys[i], Value: line[i+1]})
+							}
+						} else {
+							updateLabelsArray = append(updateLabelsArray, illumioapi.Label{Key: labelKeys[i], Value: wlLabels[labelKeys[i]]})
 						}
 					} else {
 						updateLabelsArray = append(updateLabelsArray, illumioapi.Label{Key: labelKeys[i], Value: wlLabels[labelKeys[i]]})

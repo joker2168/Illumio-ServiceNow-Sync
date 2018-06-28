@@ -32,7 +32,7 @@ A sample config file (`sampleConfig.json`) is included in the repository. An ann
  ```
 **Notes:**
 * `illumioMatchField` must either be `name` or `host_name`. This is what is used to match to the `serviceNowMatchField`
-* `appField`, `envField`, `locField`, and `roleField` are the ServiceNow fields that map to their respective Illumio labels.
+* `appField`, `envField`, `locField`, and `roleField` are the ServiceNow fields that map to their respective Illumio labels. To have the sync tool ignore a field set it to `""`.
 * Set `loggingOnly` to `true` if you want to run this tool to see what changes *would* happen - no updates will happen in the PCE.
 
 ## Logging
