@@ -3,7 +3,6 @@ package main
 import (
 	"crypto/tls"
 	"encoding/csv"
-	"fmt"
 	"log"
 	"net/http"
 	"net/url"
@@ -14,7 +13,6 @@ import (
 )
 
 func main() {
-	var updateRequired bool
 
 	// GET CONFIG
 	config := parseConfig()
@@ -70,24 +68,20 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	defer resp.Body.Close()
 
+	// READ IN CSV DATA
 	reader := csv.NewReader(resp.Body)
 	data, err := reader.ReadAll()
 	if err != nil {
 		log.Fatalf("ERROR - %s", err)
 	}
 
-	for idx, line := range data {
-		if idx == 100 {
-			break
-		}
-		// SKIP FIRST ENTRY IF THERE ARE HEADERS
+	for _, line := range data {
 
 		// CHECK IF WORKLOAD EXISTS
 		for _, wl := range accountWorkloads {
-			updateRequired = false
+			updateRequired := false
 			wlLabels := make(map[string]string)
 			if line[0] == wl.Hostname {
 				for _, l := range wl.Labels {
@@ -103,12 +97,11 @@ func main() {
 						updateRequired = true
 						updateLabelsArray = append(updateLabelsArray, illumioapi.Label{Key: labelKeys[i], Value: line[i+1]})
 					} else {
-						fmt.Println(labelKeys[i])
-						fmt.Println(wlLabels[labelKeys[i]])
 						updateLabelsArray = append(updateLabelsArray, illumioapi.Label{Key: labelKeys[i], Value: wlLabels[labelKeys[i]]})
 					}
 				}
 
+				// UPDATE THE WORKLOAD IF ANYTHING NEEDS TO CHANGE
 				if updateRequired == true {
 
 					// MAKE SURE THE LABEL EXISTS
