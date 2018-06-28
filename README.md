@@ -39,8 +39,10 @@ A sample config file (`sampleConfig.json`) is included in the repository. An ann
 Each run will create a log file. The file naming convention is `"IllumioServiceNowSync__YYYYMMDD_HHMMSS.log` with the time stamp based on the start of execution. Logging captures each entry and the API response status. An example output of the logging is below.
 
 ```
+2018/06/28 09:52:13 INFO - Log only mode set to false
 2018/06/28 00:41:52 INFO - db.prod.illumioeval.com - env label updated from PROD to Production
 2018/06/28 00:41:52 INFO - db.prod.illumioeval.com - loc label updated from US to US-22
+2018/06/28 09:52:17 INFO - Processed 179 servers; 175 not in PCE as workloads
 ```
 
 ## Executables
