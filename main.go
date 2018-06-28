@@ -90,15 +90,23 @@ func main() {
 	counter := 0
 	for _, line := range data {
 
+		updateLabelsArray := make([]illumioapi.Label, 0)
 		// CHECK IF WORKLOAD EXISTS
 		for _, wl := range accountWorkloads {
+
+			// SET SOME WORKLOAD SPECIFIC VARIABLES
 			counter++
 			updateRequired := false
+			updateLabelsArray = nil
 			wlLabels := make(map[string]string)
+
+			// SWITCH THE MATCH FIELD FROM HOSTNAME BASED ON CONFIG
 			illumioMatch := wl.Hostname
 			if config.IllumioMatchField == "name" {
 				illumioMatch = wl.Name
 			}
+
+			// IF THE FIRST COL (MATCH) MATHCES THE ILLUMIO MATCH, TAKE ACTION
 			if line[0] == illumioMatch {
 				for _, l := range wl.Labels {
 					wlLabels[accountLabelKeys[l.Href]] = accountLabelValues[l.Href]
@@ -106,9 +114,10 @@ func main() {
 				// CHECK EACH LABEL TYPE TO SEE IF IT NEEDS TO BE UPDATED
 				labelKeys := []string{"app", "env", "loc", "role"}
 				configFields := []string{config.AppField, config.EnvField, config.LocField, config.RoleField}
-				updateLabelsArray := []illumioapi.Label{}
 				for i := 0; i <= 3; i++ {
+					// IGNORED LABELS HAVE A PLACE HOLDER COLUMN SET TO csvPlaceHolderIllumio IN CONFIG PARSING SO COLUMN STRUCTURE STAYS IN PLACE
 					if configFields[i] != "csvPlaceHolderIllumio" {
+
 						// CHECK IF THE WORKLOAD LABEL MATCHES THE CSV FIELD
 						if wlLabels[labelKeys[i]] != line[i+1] {
 							log.Printf("INFO - %s - %s label updated from %s to %s", wl.Hostname, labelKeys[i], wlLabels[labelKeys[i]], line[i+1])
@@ -116,9 +125,11 @@ func main() {
 							if line[i+1] != "" {
 								updateLabelsArray = append(updateLabelsArray, illumioapi.Label{Key: labelKeys[i], Value: line[i+1]})
 							}
-						} else {
+							// IF THE LINES DO MATCH AND THE CELL ISN'T EMPTY (NO LABEL), WE APPEND EXISTING LABEL TO KEEP IT
+						} else if line[i+1] != "" {
 							updateLabelsArray = append(updateLabelsArray, illumioapi.Label{Key: labelKeys[i], Value: wlLabels[labelKeys[i]]})
 						}
+						// IF THE FIELD IS BEING SKIPPED (csvPlaceHolderIllumio) WE ALSO ADD THE EXISTING LABEL TO KEEP IT
 					} else {
 						updateLabelsArray = append(updateLabelsArray, illumioapi.Label{Key: labelKeys[i], Value: wlLabels[labelKeys[i]]})
 					}
