@@ -108,7 +108,7 @@ func main() {
 				for i := 0; i <= 3; i++ {
 					if configFields[i] != "csvPlaceHolderIllumio" {
 						// CHECK IF THE WORKLOAD LABEL MATCHES THE CSV FIELD
-						if wlLabels[labelKeys[i]] != line[i+1] {
+						if wlLabels[labelKeys[i]] != strings.ToUpper(line[i+1]) {
 							log.Printf("INFO - %s - %s label updated from %s to %s", wl.Hostname, labelKeys[i], wlLabels[labelKeys[i]], strings.ToUpper(line[i+1]))
 							updateRequired = true
 							if line[i+1] != "" {
