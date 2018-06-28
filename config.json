@@ -11,5 +11,6 @@
     "appField":"u_application",
     "envField":"used_for",
     "locField": "u_data_center",
-    "roleField": "u_type"
+    "roleField": "u_type",
+    "loggingOnly": false
 }

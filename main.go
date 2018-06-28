@@ -25,6 +25,12 @@ func main() {
 	defer f.Close()
 	log.SetOutput(f)
 
+	// LOG THE MODE
+	log.Printf("INFO - Log only mode set to %t", config.LoggingOnly)
+	if config.LoggingOnly == true {
+		log.Printf("INFO - THIS MEANS ALL CHANGES LOGGED TO THE PCE DID NOT ACTUALLY HAPPEN. THEY WILL HAPPEN IF YOU RUN AGAIN WITH LOG ONLY SET TO FALSE.")
+	}
+
 	// GET ALL EXISTING LABELS AHEAD OF TIME (SAVES API CALLS)
 	labelsAPI, err := illumioapi.GetAllLabels(config.IllumioFQDN, config.IllumioPort, config.IllumioOrg, config.IllumioUser, config.IllumioKey)
 	if err != nil {
@@ -114,7 +120,7 @@ func main() {
 							log.Printf("ERROR - %s - %s", wl.Hostname, err)
 						}
 						// IF LABEL DOESN'T EXIST, CREATE IT
-						if len(labelCheck) == 0 {
+						if len(labelCheck) == 0 && config.LoggingOnly == false {
 							_, err := illumioapi.CreateLabel(config.IllumioFQDN, config.IllumioPort, config.IllumioOrg, config.IllumioUser, config.IllumioKey, ul)
 							if err != nil {
 								log.Printf("ERROR - %s - %s", wl.Hostname, err)
@@ -133,9 +139,11 @@ func main() {
 					}
 					payload := illumioapi.Workload{Href: wl.Href, Labels: workloadUpdates}
 
-					_, err := illumioapi.UpdateWorkload(config.IllumioFQDN, config.IllumioPort, config.IllumioUser, config.IllumioKey, payload)
-					if err != nil {
-						log.Printf("ERROR - %s - %s", wl.Hostname, err)
+					if config.LoggingOnly == false {
+						_, err := illumioapi.UpdateWorkload(config.IllumioFQDN, config.IllumioPort, config.IllumioUser, config.IllumioKey, payload)
+						if err != nil {
+							log.Printf("ERROR - %s - %s", wl.Hostname, err)
+						}
 					}
 				} else {
 					log.Printf("INFO - %s - No label updates required", wl.Hostname)

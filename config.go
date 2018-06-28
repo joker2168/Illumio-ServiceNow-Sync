@@ -21,6 +21,7 @@ type config struct {
 	EnvField       string `json:"envField"`
 	LocField       string `json:"locField"`
 	RoleField      string `json:"roleField"`
+	LoggingOnly    bool   `json:"loggingOnly"`
 }
 
 var configFile string
