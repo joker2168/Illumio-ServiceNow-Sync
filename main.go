@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 
 	"stash.ilabs.io/scm/~brian.pitta/illumioapi.git"
@@ -108,10 +109,10 @@ func main() {
 					if configFields[i] != "csvPlaceHolderIllumio" {
 						// CHECK IF THE WORKLOAD LABEL MATCHES THE CSV FIELD
 						if wlLabels[labelKeys[i]] != line[i+1] {
-							log.Printf("INFO - %s - %s label updated from %s to %s", wl.Hostname, labelKeys[i], wlLabels[labelKeys[i]], line[i+1])
+							log.Printf("INFO - %s - %s label updated from %s to %s", wl.Hostname, labelKeys[i], wlLabels[labelKeys[i]], strings.ToUpper(line[i+1]))
 							updateRequired = true
 							if line[i+1] != "" {
-								updateLabelsArray = append(updateLabelsArray, illumioapi.Label{Key: labelKeys[i], Value: line[i+1]})
+								updateLabelsArray = append(updateLabelsArray, illumioapi.Label{Key: labelKeys[i], Value: strings.ToUpper(line[i+1])})
 							}
 						} else {
 							updateLabelsArray = append(updateLabelsArray, illumioapi.Label{Key: labelKeys[i], Value: wlLabels[labelKeys[i]]})
