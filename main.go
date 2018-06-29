@@ -114,14 +114,24 @@ func main() {
 				// CHECK EACH LABEL TYPE TO SEE IF IT NEEDS TO BE UPDATED
 				labelKeys := []string{"app", "env", "loc", "role"}
 				configFields := []string{config.AppField, config.EnvField, config.LocField, config.RoleField}
+
 				for i := 0; i <= 3; i++ {
+					// WE USE THE SN DATA WHEN THE FOLLOWING CONDITIONS ARE MET:
+					// configFields[i] != "csvPlaceHolderIllumio"
+					// wlLabels[labelKeys[i]] != line[i+1]
+
+					// WE USE THE EXISTING LABEL WHEN THE FOLLOWING CONDITIONS ARE MET:
+					// configFields[i] == "csvPlaceHolderIllumio"
+					// line[i+1] != ""
+
 					// IGNORED LABELS HAVE A PLACE HOLDER COLUMN SET TO csvPlaceHolderIllumio IN CONFIG PARSING SO COLUMN STRUCTURE STAYS IN PLACE
 					if configFields[i] != "csvPlaceHolderIllumio" {
 
-						// CHECK IF THE WORKLOAD LABEL MATCHES THE CSV FIELD
+						// IF WORKLOAD LABEL DOESN'T MATCH SERVICENOW, UPDATE IT
 						if wlLabels[labelKeys[i]] != line[i+1] {
 							log.Printf("INFO - %s - %s label updated from %s to %s", wl.Hostname, labelKeys[i], wlLabels[labelKeys[i]], line[i+1])
 							updateRequired = true
+							// IF THE NEW VALUE (FROM SN) IS BLANK, WE DON'T APPEND TO THE UPDATE ARRAY
 							if line[i+1] != "" {
 								updateLabelsArray = append(updateLabelsArray, illumioapi.Label{Key: labelKeys[i], Value: line[i+1]})
 							}
@@ -150,12 +160,17 @@ func main() {
 							if err != nil {
 								log.Printf("ERROR - %s - %s", wl.Hostname, err)
 							}
+							// MARSHAL RESPONSE OF CREATING LABEL AND PUT IN THE ARRAY HERE
+						}
+						if len(labelCheck) == 1 {
+							// MARSHAL THE RESPONSE INTO LABEL AND PUT IN THE ARRAY HERE
 						}
 					}
 
 					// UPDATE THE WORKLOAD
 					workloadUpdates := []*illumioapi.Label{}
 					for _, ul := range updateLabelsArray {
+						// THIS SEEMS LIKE A REDUNDANT API CALL - WE SHOULD HAVE ALL HREFS FROM ABOVE, NO?
 						label, err := illumioapi.GetLabel(config.IllumioFQDN, config.IllumioPort, config.IllumioOrg, config.IllumioUser, config.IllumioKey, ul.Key, ul.Value)
 						if err != nil {
 							log.Printf("ERROR - %s - %s", wl.Hostname, err)
