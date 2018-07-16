@@ -1,11 +1,7 @@
 package main
 
 import (
-	"crypto/tls"
-	"encoding/csv"
-	"encoding/json"
 	"log"
-	"net/http"
 	"net/url"
 	"os"
 	"time"
@@ -16,13 +12,13 @@ import (
 func main() {
 
 	// GET CONFIG
-	config := parseConfig()
+	config, pce := parseConfig()
 
 	// SET UP LOGGING FILE
-	if len(config.LogDirectory) > 0 && config.LogDirectory[len(config.LogDirectory)-1:] != string(os.PathSeparator) {
-		config.LogDirectory = config.LogDirectory + string(os.PathSeparator)
+	if len(config.Logging.LogDirectory) > 0 && config.Logging.LogDirectory[len(config.Logging.LogDirectory)-1:] != string(os.PathSeparator) {
+		config.Logging.LogDirectory = config.Logging.LogDirectory + string(os.PathSeparator)
 	}
-	f, err := os.OpenFile(config.LogDirectory+"Illumio_ServiceNow_Sync_"+time.Now().Format("20060102_150405")+".log", os.O_CREATE|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(config.Logging.LogDirectory+"Illumio_ServiceNow_Sync_"+time.Now().Format("20060102_150405")+".log", os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -30,13 +26,14 @@ func main() {
 	log.SetOutput(f)
 
 	// LOG THE MODE
-	log.Printf("INFO - Log only mode set to %t", config.LoggingOnly)
-	if config.LoggingOnly == true {
+	log.Printf("INFO - Log only mode set to %t", config.Logging.LogOnly)
+	if config.Logging.LogOnly == true {
 		log.Printf("INFO - THIS MEANS ALL CHANGES LOGGED TO THE PCE DID NOT ACTUALLY HAPPEN. THEY WILL HAPPEN IF YOU RUN AGAIN WITH LOG ONLY SET TO FALSE.")
 	}
+	log.Printf("INFO - Create unmanaged workloads set to %t", config.UnmanagedWorkloads.Enable)
 
 	// GET ALL EXISTING LABELS AHEAD OF TIME (SAVES API CALLS)
-	labelsAPI, err := illumioapi.GetAllLabels(config.IllumioFQDN, config.IllumioPort, config.IllumioOrg, config.IllumioUser, config.IllumioKey)
+	labelsAPI, err := illumioapi.GetAllLabels(pce)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -50,7 +47,7 @@ func main() {
 	}
 
 	// GET ALL WORKLOADS AHEAD OF TIME (SAVES API CALLS)
-	wlAPI, err := illumioapi.GetAllWorkloads(config.IllumioFQDN, config.IllumioPort, config.IllumioOrg, config.IllumioUser, config.IllumioKey)
+	wlAPI, err := illumioapi.GetAllWorkloads(pce)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -59,62 +56,48 @@ func main() {
 		accountWorkloads[w.Href] = w
 	}
 
-	// CREATE HTTP CLIENT FOR SERVICENOW REQUEST
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-	client := &http.Client{Transport: tr}
-	snURL := config.ServiceNowURL + "?CSV&sysparm_fields=" + url.QueryEscape(config.ServiceNowMatchField) + "," + url.QueryEscape(config.AppField) + "," + url.QueryEscape(config.EnvField) + "," + url.QueryEscape(config.LocField) + "," + url.QueryEscape(config.RoleField)
-	req, err := http.NewRequest("GET", snURL, nil)
-	if err != nil {
-		log.Fatal(err)
-	}
+	// GET DATA FROM SERVICENOW TABLE
+	snURL := config.ServiceNow.TableURL + "?CSV&sysparm_fields=" + url.QueryEscape(config.ServiceNow.MatchField) + "," + url.QueryEscape(config.LabelMapping.App) +
+		"," + url.QueryEscape(config.LabelMapping.Enviornment) + "," + url.QueryEscape(config.LabelMapping.Location) + "," + url.QueryEscape(config.LabelMapping.Role)
 
-	// SET BASIC AUTH
-	req.SetBasicAuth(config.ServiceNowUser, config.ServiceNowPwd)
-
-	// MAKE HTTP REQUEST
-	resp, err := client.Do(req)
-	if err != nil {
-		log.Fatal(err)
+	if config.UnmanagedWorkloads.Enable == true && config.UnmanagedWorkloads.Table == "cmdb_ci_server_list" {
+		snURL = snURL + ",ip_address,host_name"
 	}
-	defer resp.Body.Close()
+	data := snhttp(snURL)
 
-	// READ IN CSV DATA
-	reader := csv.NewReader(resp.Body)
-	data, err := reader.ReadAll()
-	if err != nil {
-		log.Fatalf("ERROR - %s", err)
-	}
-
-	notInPCE := 0
+	// SET THE TOTAL MATCH VARIABLE AND COUNTER
 	counter := 0
+	totalMatch := 0
+
 	for _, line := range data {
+		counter++
+		lineMatch := 0
 
 		updateLabelsArray := make([]illumioapi.Label, 0)
 		// CHECK IF WORKLOAD EXISTS
 		for _, wl := range accountWorkloads {
 
 			// SET SOME WORKLOAD SPECIFIC VARIABLES
-			counter++
 			updateRequired := false
 			updateLabelsArray = nil
 			wlLabels := make(map[string]string)
 
 			// SWITCH THE MATCH FIELD FROM HOSTNAME BASED ON CONFIG
 			illumioMatch := wl.Hostname
-			if config.IllumioMatchField == "name" {
+			if config.Illumio.MatchField == "name" {
 				illumioMatch = wl.Name
 			}
 
 			// IF THE FIRST COL (MATCH) MATHCES THE ILLUMIO MATCH, TAKE ACTION
 			if line[0] == illumioMatch {
+				totalMatch++
+				lineMatch++
 				for _, l := range wl.Labels {
 					wlLabels[accountLabelKeys[l.Href]] = accountLabelValues[l.Href]
 				}
 				// CHECK EACH LABEL TYPE TO SEE IF IT NEEDS TO BE UPDATED
 				labelKeys := []string{"app", "env", "loc", "role"}
-				configFields := []string{config.AppField, config.EnvField, config.LocField, config.RoleField}
+				configFields := []string{config.LabelMapping.App, config.LabelMapping.Enviornment, config.LabelMapping.Location, config.LabelMapping.Role}
 
 				for i := 0; i <= 3; i++ {
 					// ONLY WORK ON COLUMNS THAT ARE NOT "csvPlaceHolderIllumio" COLUMNS (SET IN CONFIG PARSING) AND LABELS DON'T MATCH
@@ -134,36 +117,24 @@ func main() {
 				// UPDATE THE WORKLOAD IF ANYTHING NEEDS TO CHANGE
 				if updateRequired == true {
 
-					// MAKE SURE THE LABEL EXISTS
+					// GET LABEL HREF AND CREATE IF NECESSARY
 					ulHrefs := []*illumioapi.Label{}
 					for _, ul := range updateLabelsArray {
-						labelCheck, err := illumioapi.GetLabel(config.IllumioFQDN, config.IllumioPort, config.IllumioOrg, config.IllumioUser, config.IllumioKey, ul.Key, ul.Value)
+						labelCheck, createdBool, err := checkAndCreateLabels(ul, wl.Hostname)
 						if err != nil {
 							log.Printf("ERROR - %s - %s", wl.Hostname, err)
 						}
-						// IF LABEL DOESN'T EXIST, CREATE IT
-						if len(labelCheck) == 0 {
+						if createdBool == true {
 							log.Printf("INFO - CREATED LABEL %s (%s)", ul.Value, ul.Key)
-							if config.LoggingOnly == false {
-								newLabel, err := illumioapi.CreateLabel(config.IllumioFQDN, config.IllumioPort, config.IllumioOrg, config.IllumioUser, config.IllumioKey, ul)
-								if err != nil {
-									log.Printf("ERROR - %s - %s", wl.Hostname, err)
-								}
-								var l illumioapi.Label
-								json.Unmarshal([]byte(newLabel.RespBody), &l)
-								ulHrefs = append(ulHrefs, &illumioapi.Label{Href: l.Href})
-							}
 						}
-						if len(labelCheck) == 1 {
-							ulHrefs = append(ulHrefs, &illumioapi.Label{Href: labelCheck[0].Href})
-						}
+						ulHrefs = append(ulHrefs, &illumioapi.Label{Href: labelCheck.Href})
 					}
 
 					// UPDATE THE WORKLOAD
 					payload := illumioapi.Workload{Href: wl.Href, Labels: ulHrefs}
 
-					if config.LoggingOnly == false {
-						_, err := illumioapi.UpdateWorkload(config.IllumioFQDN, config.IllumioPort, config.IllumioUser, config.IllumioKey, payload)
+					if config.Logging.LogOnly == false {
+						_, err := illumioapi.UpdateWorkload(pce, payload)
 						if err != nil {
 							log.Printf("ERROR - %s - UpdateWorkLoad - %s - Updates did not get pushed to PCE", wl.Hostname, err)
 						}
@@ -172,11 +143,48 @@ func main() {
 				} else {
 					log.Printf("INFO - %s - No label updates required", wl.Hostname)
 				}
-			} else {
-				notInPCE++
 			}
 
 		}
+		// IF THERE WERE NO MATCHES AND IT'S NOT THE HEADER FILE, CREATE THE UNMANAGED WORKLOAD
+		if lineMatch == 0 && counter != 1 && config.UnmanagedWorkloads.Enable == true {
+			if len(line[6]) > 0 && len(line[5]) > 0 {
+
+				labelKeys := []string{"app", "env", "loc", "role"}
+				configFields := []string{config.LabelMapping.App, config.LabelMapping.Enviornment, config.LabelMapping.Location, config.LabelMapping.Role}
+				var labelArray []*illumioapi.Label
+				for i := 0; i <= 3; i++ {
+					// ONLY WORK ON COLUMNS THAT ARE NOT "csvPlaceHolderIllumio" COLUMNS (SET IN CONFIG PARSING) AND LABELS DON'T MATCH
+					if configFields[i] != "csvPlaceHolderIllumio" && len(line[i+1]) > 0 {
+						l, create, err := checkAndCreateLabels(illumioapi.Label{Key: labelKeys[i], Value: line[i+1]}, line[6])
+						if err != nil {
+							log.Printf("ERROR - %s", err)
+						}
+						if create == true {
+							log.Printf("INFO - CREATED LABEL %s (%s)", line[i+1], labelKeys[i])
+						}
+						labelArray = append(labelArray, &illumioapi.Label{Href: l.Href})
+					}
+				}
+
+				intfaces := []*illumioapi.Interface{&illumioapi.Interface{Name: "eth0", Address: line[5]}}
+				umwl := illumioapi.Workload{
+					Name:       line[6],
+					Hostname:   line[6],
+					Interfaces: intfaces,
+					Labels:     labelArray}
+				_, err := illumioapi.CreateWorkload(pce, umwl)
+				if err != nil {
+					log.Printf("ERROR - Could not create workload %s with IP address %s - %s", line[6], line[5], err)
+				}
+				if err == nil {
+					log.Printf("INFO - Created unmanaged workload for hostname %s", line[6])
+				}
+			} else {
+				log.Printf("WARNING - Could not create unmanaged workload for hostname %s with IP Address %s - not enough information.", line[6], line[5])
+			}
+		}
+
 	}
-	log.Printf("INFO - Processed %d servers; %d not in PCE as workloads", counter-1, notInPCE-1)
+	log.Printf("INFO - Identified %d servers in CMDB - %d in the PCE and %d not in PCE", len(data)-1, totalMatch, len(data)-1-totalMatch)
 }
