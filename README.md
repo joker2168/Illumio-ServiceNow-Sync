@@ -7,34 +7,47 @@ A command line utility that syncs ServiceNow CMDB with Illumio. For a routine sy
 Uses a Go package that provides the plumbing for accessing the Illumio APIs. The location of the package is here: https://stash.ilabs.io/users/brian.pitta/repos/illumioapi/. You can add this to your environment by running `go get stash.ilabs.io/scm/~brian.pitta/illumioapi.git`
 
 ## Parameters
-*_-config_*: path to JSON config file
+*_-config_*: path to config file
 
 ## Configuration File
-A sample config file (`sampleConfig.json`) is included in the repository. An annotated version is below:
+A sample config file (`config.toml`) is included in the repository. An annotated version is below:
 ```
-{
-    "illumioFQDN": "pce-snc.illumioeval.com",
-    "illumioPort": 8443,
-    "illumioOrg": 1,
-    "illumioUser": "api_1e51a1dda1b7b0c6e",
-    "illumioKey":"46ae2d7c7c9301b375ec4bdb39f0d471ec9289768bbaa702ae070dc9934a5223",
-    "illumioMatchField": "host_name",
-    "serviceNowURL": "https://dev61812.service-now.com/cmdb_ci_server_list.do",
-    "serviceNowUser": "admin",
-    "serviceNowPwd": "U9%*#Mkf#8l7",
-    "serviceNowMatchField":"host_name",
-    "appField":"u_application",
-    "envField":"used_for",
-    "locField": "u_data_center",
-    "roleField": "u_type",
-    "loggingOnly": false
-}
+[illumio]
+fqdn = "pce-snc.illumioeval.com"
+port = 8443 # Integer (no quotes).
+org = 1 # Integer (no quotes). Value is 1 for on-prem PCE installations.
+user = "api_1e51a1dda1b7b0c6e"
+key = "46ae2d7c7c9301b375ec4bdb39f0d471ec9289768bbaa702ae070dc9934a5223"
+match_field = "host_name" # Matches to ServniceNow match_field. Must either be "host_name" or "name".
+
+[serviceNow]
+table_url = "https://dev61812.service-now.com/cmdb_ci_server_list.do"
+user =  "admin"
+password = "U9%*#Mkf#8l7"
+match_field = "host_name"
+
+[labelMapping]
+## To ignore a field (e.g., not sync the app field) comment the line.
+app = "u_application"
+enviornment = "used_for"
+location = "u_data_center"
+role = "u_type"
+
+[logging]
+log_only = false # True will make no changes to PCE. Log will reflect what will be updated if set to false.
+log_directory = "" # Blank value stores log in same folder where tool is run.
+
+
+### UNMANAGED WORKLOADS IS BETA ###
+
+[unmanagedWorkloads]
+## Set enable to true to create unmanaged workloads for any server in CMDB table that is not in PCE.
+## Current option supports two methods:
+# 1) using the cmdb_ci_server_list table to create an unmanaged workload with the ip_address and host_name fields
+# 2) using the cmdb_ci_network_adapter table to create an unmanaged workload with an interface for each entry
+enable = true 
+table = "cmdb_ci_server_list" # "cmdb_ci_server_list.do" or "cmdb_ci_network_adapter"
  ```
-**Notes:**
-* `illumioMatchField` must either be `name` or `host_name`. This is what is used to match to the `serviceNowMatchField`
-* `appField`, `envField`, `locField`, and `roleField` are the ServiceNow fields that map to their respective Illumio labels. To have the sync tool ignore a field set it to `""`.
-* Set `loggingOnly` to `true` if you want to run this tool to see what changes *would* happen - no updates will happen in the PCE.
-* To avoid duplicates, the sync tool will make all labels capitalized.
 
 ## Logging
 Each run will create a log file. The file naming convention is `IllumioServiceNowSync__YYYYMMDD_HHMMSS.log` with the time stamp based on the start of execution. Logging captures each entry and the API response status. An example output of the logging is below.
