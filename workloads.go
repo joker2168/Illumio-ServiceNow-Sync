@@ -29,7 +29,7 @@ func updateWorkload(labels []illumioapi.Label, workload illumioapi.Workload) {
 	}
 }
 
-func createUnmanagedWorkload(interfaceList, ipAddressList []string, app, env, loc, role, hostname string) {
+func createUnmanagedWorkload(interfaceList, ipAddressList []string, app, env, loc, role, hostname string) error {
 
 	// GET CONFIG
 	config, pce := parseConfig()
@@ -61,9 +61,10 @@ func createUnmanagedWorkload(interfaceList, ipAddressList []string, app, env, lo
 	_, err := illumioapi.CreateWorkload(pce, umwl)
 	if err != nil {
 		log.Printf("ERROR - Could not create workload %s - %s", hostname, err)
+		return err
 	}
 	if err == nil {
 		log.Printf("INFO - Created unmanaged workload for hostname %s", hostname)
 	}
-
+	return nil
 }

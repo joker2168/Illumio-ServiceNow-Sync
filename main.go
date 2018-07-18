@@ -67,6 +67,7 @@ func main() {
 	// SET THE TOTAL MATCH VARIABLE AND COUNTER
 	counter := 0
 	totalMatch := 0
+	newUnmanagedWLs := 0
 
 	// ITERATE THROUGH EACH LINE OF THE CSV
 	for _, line := range data {
@@ -136,10 +137,18 @@ func main() {
 			if len(ipAddressList[0]) == 0 || len(line[0]) == 0 {
 				log.Printf("WARNING - Not enough information to create unmanaged workload for hostname %s", line[0])
 			} else {
-				createUnmanagedWorkload(interfaceList, ipAddressList, line[1], line[2], line[3], line[4], line[0])
+				err := createUnmanagedWorkload(interfaceList, ipAddressList, line[1], line[2], line[3], line[4], line[0])
+				if err == nil {
+					newUnmanagedWLs++
+				}
+
 			}
 		}
 
 	}
-	log.Printf("INFO - Identified %d servers in CMDB - %d in the PCE and %d not in PCE", len(data)-1, totalMatch, len(data)-1-totalMatch)
+	// SUMMARIZE ACTIONS FOR LOG
+	log.Printf("INFO - %d total servers in CMDB", len(data)-1)
+	log.Printf("INFO - %d in the PCE", totalMatch)
+	log.Printf("INFO - %d new unmanaged workloads created", newUnmanagedWLs)
+	log.Printf("INFO - %d servers with not enough info for unmanaged workload.", len(data)-1-totalMatch-newUnmanagedWLs)
 }
