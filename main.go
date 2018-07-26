@@ -149,6 +149,8 @@ func main() {
 	// SUMMARIZE ACTIONS FOR LOG
 	log.Printf("INFO - %d total servers in CMDB", len(data)-1)
 	log.Printf("INFO - %d in the PCE", totalMatch)
-	log.Printf("INFO - %d new unmanaged workloads created", newUnmanagedWLs)
-	log.Printf("INFO - %d servers with not enough info for unmanaged workload.", len(data)-1-totalMatch-newUnmanagedWLs)
+	if config.UnmanagedWorkloads.Enable == true {
+		log.Printf("INFO - %d new unmanaged workloads created", newUnmanagedWLs)
+		log.Printf("INFO - %d servers with not enough info for unmanaged workload.", len(data)-1-totalMatch-newUnmanagedWLs)
+	}
 }
