@@ -26,10 +26,13 @@ func snhttp(url string) [][]string {
 	req.SetBasicAuth(config.ServiceNow.User, config.ServiceNow.Password)
 
 	// MAKE HTTP REQUEST
+	if config.Logging.verbose == true {
+		log.Printf("DEBUG - Making ServiceNow API call ...")
+	}
 	resp, err := client.Do(req)
 
 	// LOG SERVICE NOW HTTP REQUEST
-	if config.Logging.logLevel == true {
+	if config.Logging.verbose == true {
 		log.Printf("DEBUG - ServiceNow API Response Status Code: %d \r\n", resp.StatusCode)
 	}
 	if err != nil {
@@ -40,12 +43,11 @@ func snhttp(url string) [][]string {
 	// READ IN CSV DATA
 	reader := csv.NewReader(resp.Body)
 	data, err := reader.ReadAll()
+	if config.Logging.verbose == true {
+		log.Printf("DEBUG - ServiceNowAPI Response CSV Data: %v \r\n", data)
+	}
 	if err != nil {
 		log.Fatalf("ERROR - %s", err)
 	}
-	if config.Logging.logLevel == true {
-		log.Printf("DEBUG - ServiceNowAPI Response CSV Data: %v \r\n", data)
-	}
-
 	return data
 }
