@@ -24,6 +24,7 @@ func updateWorkload(labels []illumioapi.Label, workload illumioapi.Workload) {
 	if config.Logging.LogOnly == false {
 		updateWlAPI, err := illumioapi.UpdateWorkload(pce, payload)
 		if config.Logging.verbose == true {
+			log.Printf("DEBUG - Update WL API HTTP Request Made: %s %v \r\n", updateWlAPI.Request.Method, updateWlAPI.Request.URL)
 			log.Printf("DEBUG - Update WL API for %s Response Status Code: %d \r\n", workload.Hostname, updateWlAPI.StatusCode)
 			log.Printf("DEBUG - Update WL API for %s Response Body: %s \r\n", workload.Hostname, updateWlAPI.RespBody)
 		}
