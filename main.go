@@ -33,13 +33,13 @@ func main() {
 	log.Printf("INFO - Create unmanaged workloads set to %t\r\n", config.UnmanagedWorkloads.Enable)
 
 	// GET ALL EXISTING LABELS
-	if config.Logging.logLevel == true {
+	if config.Logging.verbose == true {
 		log.Printf("DEBUG - Making API call to get all Labels...\r\n")
 	}
 	labelsAPI, apiResp, err := illumioapi.GetAllLabels(pce)
 
 	// DEBUG LOGGING BEFORE FATAL ERROR LOGGING
-	if config.Logging.logLevel == true {
+	if config.Logging.verbose == true {
 		log.Printf("DEBUG - Get All Labels API Response Status Code: %d \r\n", apiResp.StatusCode)
 		log.Printf("DEBUG - Get All Labels API Response Body: %s \r\n", apiResp.RespBody)
 	}
@@ -55,12 +55,12 @@ func main() {
 	}
 
 	// GET ALL EXISTING WORKLOADS
-	if config.Logging.logLevel == true {
+	if config.Logging.verbose == true {
 		log.Printf("DEBUG - Making API call to get all Workloads...\r\n")
 	}
 	wlAPI, apiResp, err := illumioapi.GetAllWorkloads(pce)
 	// DEBUG LOGGING BEFORE FATAL ERROR LOGGING
-	if config.Logging.logLevel == true {
+	if config.Logging.verbose == true {
 		log.Printf("DEBUG - Get All Labels API Response Status Code: %d \r\n", apiResp.StatusCode)
 		log.Printf("DEBUG - Get All Labels API Response Body: %s \r\n", apiResp.RespBody)
 	}
@@ -140,7 +140,7 @@ func main() {
 
 				// UPDATE THE WORKLOAD IF ANYTHING NEEDS TO CHANGE
 				if updateRequired == true {
-					if config.Logging.logLevel == true {
+					if config.Logging.verbose == true {
 						log.Printf("Updating workload %s ...\r\n", wl.Hostname)
 					}
 					updateWorkload(updateLabelsArray, wl)
