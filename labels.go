@@ -27,6 +27,7 @@ func checkAndCreateLabels(label illumioapi.Label, hostname string) illumioapi.La
 		if config.Logging.LogOnly == false {
 			newLabel, err := illumioapi.CreateLabel(pce, label)
 			if config.Logging.verbose == true {
+				log.Printf("DEBUG - Exact label does not exist. Creating new label... \r\n")
 				log.Printf("DEBUG - Create Label API for %s (%s) Response Status Code: %d \r\n", label.Value, label.Key, newLabel.StatusCode)
 				log.Printf("DEBUG - Create Label API for %s (%s) Response Body: %s \r\n", label.Value, label.Key, newLabel.RespBody)
 			}
