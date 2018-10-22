@@ -41,7 +41,6 @@ func main() {
 	// DEBUG LOGGING BEFORE FATAL ERROR LOGGING
 	if config.Logging.logLevel == true {
 		log.Printf("DEBUG - Get All Labels API Response Status Code: %d \r\n", apiResp.StatusCode)
-		log.Printf("DEBIG - Get All Labels API Response Headers: %s \r\n", apiResp.Header)
 		log.Printf("DEBUG - Get All Labels API Response Body: %s \r\n", apiResp.RespBody)
 	}
 	if err != nil {
@@ -63,7 +62,6 @@ func main() {
 	// DEBUG LOGGING BEFORE FATAL ERROR LOGGING
 	if config.Logging.logLevel == true {
 		log.Printf("DEBUG - Get All Labels API Response Status Code: %d \r\n", apiResp.StatusCode)
-		log.Printf("DEBIG - Get All Labels API Response Headers: %s \r\n", apiResp.Header)
 		log.Printf("DEBUG - Get All Labels API Response Body: %s \r\n", apiResp.RespBody)
 	}
 	if err != nil {

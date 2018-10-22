@@ -25,7 +25,6 @@ func updateWorkload(labels []illumioapi.Label, workload illumioapi.Workload) {
 		updateWlAPI, err := illumioapi.UpdateWorkload(pce, payload)
 		if config.Logging.logLevel == true {
 			log.Printf("DEBUG - Update WL API for %s Response Status Code: %d \r\n", workload.Hostname, updateWlAPI.StatusCode)
-			log.Printf("DEBIG - Update WL API for %s Response Headers: %s \r\n", workload.Hostname, updateWlAPI.Header)
 			log.Printf("DEBUG - Update WL API for %s Response Body: %s \r\n", workload.Hostname, updateWlAPI.RespBody)
 		}
 		if err != nil {

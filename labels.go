@@ -16,7 +16,6 @@ func checkAndCreateLabels(label illumioapi.Label, hostname string) illumioapi.La
 	labelCheck, apiResp, err := illumioapi.GetLabel(pce, label.Key, label.Value)
 	if config.Logging.logLevel == true {
 		log.Printf("DEBUG - Get Label API for %s (%s) Response Status Code: %d \r\n", label.Value, label.Key, apiResp.StatusCode)
-		log.Printf("DEBIG - Get Label API for %s (%s) Response Headers: %s \r\n", label.Value, label.Key, apiResp.Header)
 		log.Printf("DEBUG - Get Label API for %s (%s) Response Body: %s \r\n", label.Value, label.Key, apiResp.RespBody)
 	}
 	if err != nil {
@@ -29,7 +28,6 @@ func checkAndCreateLabels(label illumioapi.Label, hostname string) illumioapi.La
 			newLabel, err := illumioapi.CreateLabel(pce, label)
 			if config.Logging.logLevel == true {
 				log.Printf("DEBUG - Create Label API for %s (%s) Response Status Code: %d \r\n", label.Value, label.Key, newLabel.StatusCode)
-				log.Printf("DEBIG - Create Label API for %s (%s) Response Headers: %s \r\n", label.Value, label.Key, newLabel.Header)
 				log.Printf("DEBUG - Create Label API for %s (%s) Response Body: %s \r\n", label.Value, label.Key, newLabel.RespBody)
 			}
 			if err != nil {
