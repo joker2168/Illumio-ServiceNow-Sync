@@ -40,8 +40,9 @@ func main() {
 
 	// DEBUG LOGGING BEFORE FATAL ERROR LOGGING
 	if config.Logging.verbose == true {
+		log.Printf("DEBUG - Get All Labels API HTTP Request Made: %s %v \r\n", apiResp.Request.Method, apiResp.Request.URL)
 		log.Printf("DEBUG - Get All Labels API Response Status Code: %d \r\n", apiResp.StatusCode)
-		log.Printf("DEBUG - Get All Labels API Response Body: %s \r\n", apiResp.RespBody)
+		log.Printf("DEBUG - Get All Labels API Response Body: \r\n %s \r\n", apiResp.RespBody)
 	}
 	if err != nil {
 		log.Fatal(err)
@@ -61,8 +62,9 @@ func main() {
 	wlAPI, apiResp, err := illumioapi.GetAllWorkloads(pce)
 	// DEBUG LOGGING BEFORE FATAL ERROR LOGGING
 	if config.Logging.verbose == true {
-		log.Printf("DEBUG - Get All Labels API Response Status Code: %d \r\n", apiResp.StatusCode)
-		log.Printf("DEBUG - Get All Labels API Response Body: %s \r\n", apiResp.RespBody)
+		log.Printf("DEBUG - Get All Workloads API HTTP Request Made: %s %v \r\n", apiResp.Request.Method, apiResp.Request.URL)
+		log.Printf("DEBUG - Get All Workloads API Response Status Code: %d \r\n", apiResp.StatusCode)
+		log.Printf("DEBUG - Get All Workloads API Response Body:\r\n %s \r\n", apiResp.RespBody)
 	}
 	if err != nil {
 		log.Fatal(err)
