@@ -44,6 +44,7 @@ type labelMapping struct {
 type logging struct {
 	LogOnly      bool   `toml:"log_only"`
 	LogDirectory string `toml:"log_directory"`
+	logLevel     bool
 }
 
 type unmanagedWLs struct {
@@ -52,9 +53,11 @@ type unmanagedWLs struct {
 }
 
 var configFile string
+var debugLogging bool
 
 func init() {
-	flag.StringVar(&configFile, "config", "config.json", "location of JSON configuration file")
+	flag.StringVar(&configFile, "config", "config.toml", "Location of TOML configuration file")
+	flag.BoolVar(&debugLogging, "v", false, "Set for verbose logging.")
 }
 
 func parseConfig() (config, illumioapi.PCE) {
@@ -87,6 +90,9 @@ func parseConfig() (config, illumioapi.PCE) {
 		Org:  config.Illumio.Org,
 		User: config.Illumio.User,
 		Key:  config.Illumio.Key}
+
+	// SET THE LOGGING IN THE CONFIG STRUCT
+	config.Logging.logLevel = debugLogging
 
 	return config, pce
 }
