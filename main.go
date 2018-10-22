@@ -142,9 +142,10 @@ func main() {
 
 				// UPDATE THE WORKLOAD IF ANYTHING NEEDS TO CHANGE
 				if updateRequired == true {
+					if config.Logging.logLevel == true {
+						log.Printf("Updating workload %s ...\r\n", wl.Hostname)
+					}
 					updateWorkload(updateLabelsArray, wl)
-				} else {
-					// log.Printf("INFO - %s - No label updates required", wl.Hostname)
 				}
 			}
 
