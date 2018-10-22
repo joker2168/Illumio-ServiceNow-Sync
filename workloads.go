@@ -22,7 +22,12 @@ func updateWorkload(labels []illumioapi.Label, workload illumioapi.Workload) {
 	payload := illumioapi.Workload{Href: workload.Href, Labels: ulHrefs}
 
 	if config.Logging.LogOnly == false {
-		_, err := illumioapi.UpdateWorkload(pce, payload)
+		updateWlAPI, err := illumioapi.UpdateWorkload(pce, payload)
+		if config.Logging.logLevel == true {
+			log.Printf("DEBUG - Update WL API for %s Response Status Code: %d \r\n", workload.Hostname, updateWlAPI.StatusCode)
+			log.Printf("DEBIG - Update WL API for %s Response Headers: %s \r\n", workload.Hostname, updateWlAPI.Header)
+			log.Printf("DEBUG - Update WL API for %s Response Body: %s \r\n", workload.Hostname, updateWlAPI.RespBody)
+		}
 		if err != nil {
 			log.Printf("ERROR - %s - UpdateWorkLoad - %s - Updates did not get pushed to PCE", workload.Hostname, err)
 		}
