@@ -1,9 +1,9 @@
 [illumio]
-fqdn = "pce-snc.illumioeval.com"
+fqdn = "<fqdn>"
 port = 8443 # Integer (no quotes).
 org = 1 # Integer (no quotes). Value is 1 for on-prem PCE installations.
-user = "api_1e51a1dda1b7b0c6e"
-key = "46ae2d7c7c9301b375ec4bdb39f0d471ec9289768bbaa702ae070dc9934a5223"
+user = "<api_id>"
+key = "<api_key>"
 match_field = "host_name" # Matches to ServniceNow match_field. Must either be "host_name" or "name".
 
 [serviceNow]
@@ -24,12 +24,7 @@ log_only = false # True will make no changes to PCE. Log will reflect what will 
 log_directory = "" # Blank value stores log in same folder where tool is run.
 
 
-### UNMANAGED WORKLOADS IS BETA ###
-
+### DO NOT USE THIS PIECE - KEEP SET TO FALSE ###
 [unmanagedWorkloads]
-## Set enable to true to create unmanaged workloads for any server in CMDB table that is not in PCE.
-## Current option supports two methods:
-# 1) using the cmdb_ci_server_list table to create an unmanaged workload with the ip_address and host_name fields
-# 2) using the cmdb_ci_network_adapter table to create an unmanaged workload with an interface for each entry
-enable = true 
+enable = false 
 table = "cmdb_ci_server_list" # "cmdb_ci_server_list.do" or "cmdb_ci_network_adapter"
