@@ -3,8 +3,10 @@ package main
 import (
 	"crypto/tls"
 	"encoding/csv"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 )
 
 func snhttp(url string) [][]string {
@@ -33,7 +35,9 @@ func snhttp(url string) [][]string {
 
 	// LOG SERVICE NOW HTTP REQUEST
 	if config.Logging.verbose == true {
+		log.Printf("DEBUG - ServiceNow API HTTP Request Made: %s %v \r\n", resp.Request.Method, resp.Request.URL)
 		log.Printf("DEBUG - ServiceNow API Response Status Code: %d \r\n", resp.StatusCode)
+
 	}
 	if err != nil {
 		log.Fatal(err)
@@ -41,10 +45,12 @@ func snhttp(url string) [][]string {
 	defer resp.Body.Close()
 
 	// READ IN CSV DATA
-	reader := csv.NewReader(resp.Body)
+	bodyBytes, _ := ioutil.ReadAll(resp.Body)
+	bodyString := string(bodyBytes)
+	reader := csv.NewReader(strings.NewReader(bodyString))
 	data, err := reader.ReadAll()
 	if config.Logging.verbose == true {
-		log.Printf("DEBUG - ServiceNowAPI Response CSV Data: %v \r\n", data)
+		log.Printf("DEBUG - ServiceNowAPI Response CSV Data:\r\n %v \r\n", bodyString)
 	}
 	if err != nil {
 		log.Fatalf("ERROR - %s", err)
