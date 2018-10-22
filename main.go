@@ -26,17 +26,28 @@ func main() {
 	log.SetOutput(f)
 
 	// LOG THE MODE
-	log.Printf("INFO - Log only mode set to %t", config.Logging.LogOnly)
+	log.Printf("INFO - Log only mode set to %t \r\n", config.Logging.LogOnly)
 	if config.Logging.LogOnly == true {
-		log.Printf("INFO - THIS MEANS ALL CHANGES LOGGED TO THE PCE DID NOT ACTUALLY HAPPEN. THEY WILL HAPPEN IF YOU RUN AGAIN WITH LOG ONLY SET TO FALSE.")
+		log.Printf("INFO - THIS MEANS ALL CHANGES LOGGED TO THE PCE DID NOT ACTUALLY HAPPEN. THEY WILL HAPPEN IF YOU RUN AGAIN WITH LOG ONLY SET TO FALSE.\r\n")
 	}
-	log.Printf("INFO - Create unmanaged workloads set to %t", config.UnmanagedWorkloads.Enable)
+	log.Printf("INFO - Create unmanaged workloads set to %t\r\n", config.UnmanagedWorkloads.Enable)
 
 	// GET ALL EXISTING LABELS
-	labelsAPI, err := illumioapi.GetAllLabels(pce)
+	if config.Logging.logLevel == true {
+		log.Printf("DEBUG - Making API call to get all Labels...")
+	}
+	labelsAPI, apiResp, err := illumioapi.GetAllLabels(pce)
+
+	// DEBUG LOGGING BEFORE FATAL ERROR LOGGING
+	if config.Logging.logLevel == true {
+		log.Printf("DEBUG - Get All Labels API Response Status Code: %d \r\n", apiResp.StatusCode)
+		log.Printf("DEBIG - Get All Labels API Response Headers: %s \r\n", apiResp.Header)
+		log.Printf("DEBUG - Get All Labels API Response Body: %s \r\n", apiResp.RespBody)
+	}
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	accountLabelKeys := make(map[string]string)
 	accountLabelValues := make(map[string]string)
 	for _, l := range labelsAPI {
@@ -45,7 +56,16 @@ func main() {
 	}
 
 	// GET ALL EXISTING WORKLOADS
-	wlAPI, err := illumioapi.GetAllWorkloads(pce)
+	if config.Logging.logLevel == true {
+		log.Printf("DEBUG - Making API call to get all Workloads...")
+	}
+	wlAPI, apiResp, err := illumioapi.GetAllWorkloads(pce)
+	// DEBUG LOGGING BEFORE FATAL ERROR LOGGING
+	if config.Logging.logLevel == true {
+		log.Printf("DEBUG - Get All Labels API Response Status Code: %d \r\n", apiResp.StatusCode)
+		log.Printf("DEBIG - Get All Labels API Response Headers: %s \r\n", apiResp.Header)
+		log.Printf("DEBUG - Get All Labels API Response Body: %s \r\n", apiResp.RespBody)
+	}
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -106,7 +126,7 @@ func main() {
 
 					// CANNOT BE "csvPlaceHolderIllumio" (SKIPPING THAT COL) AND THE LABELS DON'T MATCH
 					if configFields[i] != "csvPlaceHolderIllumio" && wlLabels[labelKeys[i]] != line[i+1] {
-						log.Printf("INFO - %s - %s label updated from %s to %s", wl.Hostname, labelKeys[i], wlLabels[labelKeys[i]], line[i+1])
+						log.Printf("INFO - %s - %s label updated from %s to %s\r\n", wl.Hostname, labelKeys[i], wlLabels[labelKeys[i]], line[i+1])
 						updateRequired = true
 
 						// IF THE NEW VALUE (FROM SN) IS BLANK, WE DON'T APPEND TO THE UPDATE ARRAY
@@ -124,7 +144,7 @@ func main() {
 				if updateRequired == true {
 					updateWorkload(updateLabelsArray, wl)
 				} else {
-					log.Printf("INFO - %s - No label updates required", wl.Hostname)
+					// log.Printf("INFO - %s - No label updates required", wl.Hostname)
 				}
 			}
 
@@ -135,7 +155,7 @@ func main() {
 			interfaceList := []string{"eth0"}
 			ipAddressList := []string{line[5]}
 			if len(ipAddressList[0]) == 0 || len(line[0]) == 0 {
-				log.Printf("WARNING - Not enough information to create unmanaged workload for hostname %s", line[0])
+				log.Printf("WARNING - Not enough information to create unmanaged workload for hostname %s\r\n", line[0])
 			} else {
 				err := createUnmanagedWorkload(interfaceList, ipAddressList, line[1], line[2], line[3], line[4], line[0])
 				if err == nil {
@@ -147,10 +167,9 @@ func main() {
 
 	}
 	// SUMMARIZE ACTIONS FOR LOG
-	log.Printf("INFO - %d total servers in CMDB", len(data)-1)
-	log.Printf("INFO - %d in the PCE", totalMatch)
+	log.Printf("INFO - %d total servers in CMDB and %d matched to PCE workloads\r\n", len(data)-1, totalMatch)
 	if config.UnmanagedWorkloads.Enable == true {
-		log.Printf("INFO - %d new unmanaged workloads created", newUnmanagedWLs)
-		log.Printf("INFO - %d servers with not enough info for unmanaged workload.", len(data)-1-totalMatch-newUnmanagedWLs)
+		log.Printf("INFO - %d new unmanaged workloads created\r\n", newUnmanagedWLs)
+		log.Printf("INFO - %d servers with not enough info for unmanaged workload.\r\n", len(data)-1-totalMatch-newUnmanagedWLs)
 	}
 }
