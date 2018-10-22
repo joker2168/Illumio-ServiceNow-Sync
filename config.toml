@@ -1,28 +1,27 @@
 [illumio]
-fqdn = "<fqdn>"
-port = 8443 # Integer (no quotes).
-org = 1 # Integer (no quotes). Value is 1 for on-prem PCE installations.
-user = "<api_id>"
-key = "<api_key>"
+fqdn = "demo4.illum.io"
+port = 443 # Integer (no quotes).
+org = 14 # Integer (no quotes). Value is 1 for on-prem PCE installations.
+user = "api_1994a3a47d8e4bbb1"
+key = "c15c446e8067c348f6ba66c3c9ee1e254e887e607e62fa0ea52f6ae3841f8a79"
 match_field = "host_name" # Matches to ServniceNow match_field. Must either be "host_name" or "name".
 
 [serviceNow]
-table_url = "https://dev61812.service-now.com/cmdb_ci_server_list.do"
+table_url = "https://dev68954.service-now.com/cmdb_ci_server_list.do"
 user =  "admin"
-password = "U9%*#Mkf#8l7"
+password = "UGk6gsKaK6jWa34"
 match_field = "host_name"
 
 [labelMapping]
 ## To ignore a field (e.g., not sync the app field) comment the line.
 app = "u_application"
-enviornment = "used_for"
+enviornment = "u_environment"
 location = "u_data_center"
 role = "u_type"
 
 [logging]
 log_only = false # True will make no changes to PCE. Log will reflect what will be updated if set to false.
 log_directory = "" # Blank value stores log in same folder where tool is run.
-
 
 ### DO NOT USE THIS PIECE - KEEP SET TO FALSE ###
 [unmanagedWorkloads]
