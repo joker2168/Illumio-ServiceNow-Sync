@@ -143,7 +143,7 @@ func main() {
 				// UPDATE THE WORKLOAD IF ANYTHING NEEDS TO CHANGE
 				if updateRequired == true {
 					if config.Logging.verbose == true {
-						log.Printf("Updating workload %s ...\r\n", wl.Hostname)
+						log.Printf("DEBUG - Updating workload %s ...\r\n", wl.Hostname)
 					}
 					updateWorkload(updateLabelsArray, wl)
 				}
