@@ -34,7 +34,7 @@ func main() {
 
 	// GET ALL EXISTING LABELS
 	if config.Logging.logLevel == true {
-		log.Printf("DEBUG - Making API call to get all Labels...")
+		log.Printf("DEBUG - Making API call to get all Labels...\r\n")
 	}
 	labelsAPI, apiResp, err := illumioapi.GetAllLabels(pce)
 
@@ -57,7 +57,7 @@ func main() {
 
 	// GET ALL EXISTING WORKLOADS
 	if config.Logging.logLevel == true {
-		log.Printf("DEBUG - Making API call to get all Workloads...")
+		log.Printf("DEBUG - Making API call to get all Workloads...\r\n")
 	}
 	wlAPI, apiResp, err := illumioapi.GetAllWorkloads(pce)
 	// DEBUG LOGGING BEFORE FATAL ERROR LOGGING
