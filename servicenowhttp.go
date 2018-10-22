@@ -29,7 +29,7 @@ func snhttp(url string) [][]string {
 
 	// MAKE HTTP REQUEST
 	if config.Logging.verbose == true {
-		log.Printf("DEBUG - Making ServiceNow API call ...")
+		log.Printf("DEBUG - Making ServiceNow API call ...\r\n")
 	}
 	resp, err := client.Do(req)
 
@@ -50,7 +50,7 @@ func snhttp(url string) [][]string {
 	reader := csv.NewReader(strings.NewReader(bodyString))
 	data, err := reader.ReadAll()
 	if config.Logging.verbose == true {
-		log.Printf("DEBUG - ServiceNowAPI Response CSV Data:\r\n %v \r\n", bodyString)
+		log.Printf("DEBUG - ServiceNowAPI Response CSV Data:\r\n %v \r\n", strings.Replace(bodyString, "\n", "\r\n", -1))
 	}
 	if err != nil {
 		log.Fatalf("ERROR - %s", err)
