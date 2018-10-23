@@ -35,7 +35,8 @@ func snhttp(url string) [][]string {
 
 	// LOG SERVICE NOW HTTP REQUEST
 	if config.Logging.verbose == true {
-		log.Printf("DEBUG - ServiceNow API HTTP Request Made: %s %v \r\n", resp.Request.Method, resp.Request.URL)
+		log.Printf("DEBUG - ServiceNow API HTTP Request: %s %v \r\n", resp.Request.Method, resp.Request.URL)
+		log.Printf("DEBUG - ServiceNow API HTTP Reqest Header: %v \r\n", resp.Request.Header)
 		log.Printf("DEBUG - ServiceNow API Response Status Code: %d \r\n", resp.StatusCode)
 
 	}

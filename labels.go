@@ -15,7 +15,8 @@ func checkAndCreateLabels(label illumioapi.Label, hostname string) illumioapi.La
 	// CHECK IF LABEL EXISTS
 	labelCheck, apiResp, err := illumioapi.GetLabel(pce, label.Key, label.Value)
 	if config.Logging.verbose == true {
-		log.Printf("DEBUG - Get Label API HTTP Request Made: %s %v \r\n", apiResp.Request.Method, apiResp.Request.URL)
+		log.Printf("DEBUG - Get Label API HTTP Request: %s %v \r\n", apiResp.Request.Method, apiResp.Request.URL)
+		log.Printf("DEBUG - Get Label API HTTP Reqest Header: %v \r\n", apiResp.Request.Header)
 		log.Printf("DEBUG - Get Label API for %s (%s) Response Status Code: %d \r\n", label.Value, label.Key, apiResp.StatusCode)
 		log.Printf("DEBUG - Get Label API for %s (%s) Response Body: %s \r\n", label.Value, label.Key, apiResp.RespBody)
 	}
@@ -29,7 +30,8 @@ func checkAndCreateLabels(label illumioapi.Label, hostname string) illumioapi.La
 			newLabel, err := illumioapi.CreateLabel(pce, label)
 			if config.Logging.verbose == true {
 				log.Printf("DEBUG - Exact label does not exist for %s (%s). Creating new label... \r\n", label.Value, label.Key)
-				log.Printf("DEBUG - Create Label API HTTP Request Made: %s %v \r\n", newLabel.Request.Method, newLabel.Request.URL)
+				log.Printf("DEBUG - Create Label API HTTP Request: %s %v \r\n", newLabel.Request.Method, newLabel.Request.URL)
+				log.Printf("DEBUG - Create Label API HTTP Reqest Header: %v \r\n", newLabel.Request.Header)
 				log.Printf("DEBUG - Create Label API for %s (%s) Response Status Code: %d \r\n", label.Value, label.Key, newLabel.StatusCode)
 				log.Printf("DEBUG - Create Label API for %s (%s) Response Body: %s \r\n", label.Value, label.Key, newLabel.RespBody)
 			}
