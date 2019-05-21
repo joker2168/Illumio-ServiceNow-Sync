@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"log"
 
-	"stash.ilabs.io/scm/~brian.pitta/illumioapi.git"
+	"github.com/brian1917/illumioapi"
 )
 
 func checkAndCreateLabels(label illumioapi.Label, hostname string) illumioapi.Label {
@@ -13,7 +13,7 @@ func checkAndCreateLabels(label illumioapi.Label, hostname string) illumioapi.La
 	var l illumioapi.Label
 
 	// CHECK IF LABEL EXISTS
-	labelCheck, apiResp, err := illumioapi.GetLabel(pce, label.Key, label.Value)
+	labelCheck, apiResp, err := illumioapi.GetLabelbyKeyValue(pce, label.Key, label.Value)
 	if config.Logging.verbose == true {
 		log.Printf("DEBUG - Get Label API HTTP Request: %s %v \r\n", apiResp.Request.Method, apiResp.Request.URL)
 		log.Printf("DEBUG - Get Label API HTTP Reqest Header: %v \r\n", apiResp.Request.Header)
@@ -27,7 +27,7 @@ func checkAndCreateLabels(label illumioapi.Label, hostname string) illumioapi.La
 	// IF LABEL DOESN'T EXIST, CREATE IT
 	if labelCheck.Key == "" {
 		if config.Logging.LogOnly == false {
-			newLabel, err := illumioapi.CreateLabel(pce, label)
+			_, newLabel, err := illumioapi.CreateLabel(pce, label)
 			if config.Logging.verbose == true {
 				log.Printf("DEBUG - Exact label does not exist for %s (%s). Creating new label... \r\n", label.Value, label.Key)
 				log.Printf("DEBUG - Create Label API HTTP Request: %s %v \r\n", newLabel.Request.Method, newLabel.Request.URL)

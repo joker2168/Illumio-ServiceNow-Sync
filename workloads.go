@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	illumioapi "stash.ilabs.io/scm/~brian.pitta/illumioapi.git"
+	"github.com/brian1917/illumioapi"
 )
 
 func updateWorkload(labels []illumioapi.Label, workload illumioapi.Workload) {
@@ -64,7 +64,7 @@ func createUnmanagedWorkload(interfaceList, ipAddressList []string, app, env, lo
 		Hostname:   hostname,
 		Interfaces: networkInterfaces,
 		Labels:     labelArray}
-	_, err := illumioapi.CreateWorkload(pce, umwl)
+	_, _, err := illumioapi.CreateWorkload(pce, umwl)
 	if err != nil {
 		log.Printf("ERROR - Could not create workload %s - %s", hostname, err)
 		return err

@@ -5,9 +5,8 @@ import (
 	"io/ioutil"
 	"log"
 
-	"stash.ilabs.io/scm/~brian.pitta/illumioapi.git"
-
 	"github.com/BurntSushi/toml"
+	"github.com/brian1917/illumioapi"
 )
 
 type config struct {

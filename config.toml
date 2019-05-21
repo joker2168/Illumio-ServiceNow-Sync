@@ -9,7 +9,7 @@ match_field = "host_name" # Matches to ServniceNow match_field. Must either be "
 [serviceNow]
 table_url = "https://dev68954.service-now.com/cmdb_ci_server_list.do"
 user =  "admin"
-password = "UGk6gsKaK6jWa34"
+password = "UGk6gsKaK6jWa3"
 match_field = "host_name"
 
 [labelMapping]
